@@ -1,0 +1,77 @@
+.tyche-sticky-atc {
+	background: var(--wp--preset--color--base, #fff);
+	border-top: 1px solid var(--wp--preset--color--divider, rgba(0, 0, 0, 0.12));
+	bottom: 0;
+	box-shadow: 0 -12px 32px -24px rgba(0, 0, 0, 0.4);
+	left: 0;
+	position: fixed;
+	right: 0;
+	transform: translateY(100%);
+	transition: transform 240ms cubic-bezier(0.2, 0, 0, 1);
+	z-index: 50;
+}
+
+.tyche-sticky-atc.is-visible {
+	transform: none;
+}
+
+.tyche-sticky-atc__inner {
+	align-items: center;
+	box-sizing: border-box;
+	display: flex;
+	gap: 1rem;
+	margin: 0 auto;
+	max-width: var(--wp--style--global--wide-size, 1320px);
+	padding: 0.75rem var(--wp--style--root--padding-right, 1.5rem) 0.75rem var(--wp--style--root--padding-left, 1.5rem);
+}
+
+.tyche-sticky-atc__image {
+	border-radius: 4px;
+	flex-shrink: 0;
+	height: 3.5rem;
+	object-fit: cover;
+	width: 2.8rem;
+}
+
+.tyche-sticky-atc__text {
+	flex: 1;
+	min-width: 0;
+}
+
+.tyche-sticky-atc__text p {
+	margin: 0;
+}
+
+.tyche-sticky-atc__name {
+	font-weight: 500;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.tyche-sticky-atc__price {
+	font-size: 0.875rem;
+}
+
+.tyche-sticky-atc__button {
+	cursor: pointer;
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/* Keep the page's last content clear of the bar. */
+body.has-tyche-sticky-atc {
+	padding-bottom: 5rem;
+}
+
+@media (max-width: 599px) {
+	.tyche-sticky-atc__image {
+		display: none;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.tyche-sticky-atc {
+		transition: none;
+	}
+}

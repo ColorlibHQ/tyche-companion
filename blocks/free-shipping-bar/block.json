@@ -1,0 +1,23 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "tyche-companion/free-shipping-bar",
+	"version": "0.1.0",
+	"title": "Free shipping progress",
+	"category": "tyche-companion",
+	"icon": "car",
+	"description": "Shows how much more a shopper needs to spend for free shipping. The amount comes from your WooCommerce shipping zones.",
+	"keywords": [ "shipping", "delivery", "cart", "progress" ],
+	"textdomain": "tyche-companion",
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"color": { "text": true, "background": true },
+		"spacing": { "padding": true, "margin": true },
+		"typography": { "fontSize": true }
+	},
+	"editorScript": "file:./edit.js",
+	"viewScript": "file:./view.js",
+	"style": "file:./style.css",
+	"render": "file:./render.php"
+}

@@ -1,0 +1,62 @@
+/* Badges and the hover photo on WooCommerce product cards. Colours come from
+   the theme's palette when it defines one, with neutral fallbacks otherwise. */
+
+.wp-block-woocommerce-product-image {
+	position: relative;
+}
+
+.tyche-badges {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+	pointer-events: none;
+	position: absolute;
+	right: 0.75rem;
+	top: 0.75rem;
+	z-index: 2;
+}
+
+.tyche-badge {
+	background: var(--wp--preset--color--base, #fff);
+	border-radius: 999px;
+	color: var(--wp--preset--color--contrast, #111);
+	font-size: 0.75rem;
+	font-weight: 600;
+	letter-spacing: 0.06em;
+	line-height: 1;
+	padding: 0.45rem 0.7rem;
+	text-transform: uppercase;
+}
+
+.tyche-badge--sold-out {
+	background: var(--wp--preset--color--contrast, #111);
+	color: var(--wp--preset--color--base, #fff);
+}
+
+.wc-block-components-product-image:has(.tyche-hover-image) {
+	position: relative;
+}
+
+.tyche-hover-image {
+	height: 100%;
+	inset: 0;
+	object-fit: cover;
+	opacity: 0;
+	pointer-events: none;
+	position: absolute;
+	transition: opacity 300ms ease;
+	width: 100%;
+}
+
+@media (hover: hover) {
+	.wc-block-product:hover .tyche-hover-image,
+	.wc-block-components-product-image a:focus-visible .tyche-hover-image {
+		opacity: 1;
+	}
+}
+
+@media (hover: none) {
+	.tyche-hover-image {
+		display: none;
+	}
+}
