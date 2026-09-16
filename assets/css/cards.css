@@ -10,8 +10,8 @@
 	flex-direction: column;
 	gap: 0.35rem;
 	pointer-events: none;
+	inset-inline-end: 0.75rem;
 	position: absolute;
-	right: 0.75rem;
 	top: 0.75rem;
 	z-index: 2;
 }

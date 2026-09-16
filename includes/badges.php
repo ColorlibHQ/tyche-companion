@@ -80,7 +80,8 @@ function tyche_companion_sale_badge_percent( $content, $block, $instance ) {
 
 	$content = preg_replace(
 		'#(<span[^>]*wc-block-components-product-sale-badge__text[^>]*>).*?(</span>)#s',
-		'${1}' . esc_html( $label ) . '${2}',
+		// <bdi>, so "-25%" keeps its order inside right-to-left text.
+		'${1}<bdi>' . esc_html( $label ) . '</bdi>${2}',
 		$content,
 		1
 	);
@@ -113,7 +114,7 @@ function tyche_companion_sale_flash_percent( $html, $post, $product ) {
 	}
 
 	/* translators: %d: discount percentage. */
-	return '<span class="onsale">' . esc_html( sprintf( __( '-%d%%', 'tyche-companion' ), $percent ) ) . '</span>';
+	return '<span class="onsale"><bdi>' . esc_html( sprintf( __( '-%d%%', 'tyche-companion' ), $percent ) ) . '</bdi></span>';
 }
 add_filter( 'woocommerce_sale_flash', 'tyche_companion_sale_flash_percent', 10, 3 );
 
