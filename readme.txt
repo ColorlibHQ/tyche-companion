@@ -1,14 +1,14 @@
 === Tyche Companion ===
 Contributors: colorlib
-Tags: woocommerce, free shipping, sticky add to cart, product badges, block
+Tags: woocommerce, starter sites, free shipping, sticky add to cart, product badges
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.1.0
+Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Store features for the Tyche theme: free shipping progress, a sticky add-to-cart bar, sale and stock badges, and a second product photo on hover.
+Starter sites for the Tyche theme, plus the store features a block theme cannot include: free shipping progress, a sticky add-to-cart bar and product badges.
 
 == Description ==
 
@@ -22,7 +22,28 @@ Tyche Companion adds the store features a WooCommerce block theme is not allowed
 
 Every feature can be switched off under WooCommerce > Tyche Companion.
 
+= Starter sites =
+
+Appearance > Starter sites lists complete stores you can import in one step: products with real options, pages, journal posts, photographs and a look that matches.
+
+* **Import the full store**, or **just the look** if you already sell something. "Look only" changes the design and the home page layout and leaves your products and pages alone.
+* **One click removes it again.** Everything an import adds is recorded, so removing takes out exactly that, and keeps anything you have since used or edited.
+* **Nothing else is touched.** Orders, customers, payment, tax and account settings are never changed by an import.
+
+== External services ==
+
+This plugin downloads starter sites from Colorlib's library at https://downloads.colorlib.com when you open Appearance > Starter sites and when you import one.
+
+Opening the screen requests the list of starters (their names, the niche each one suits, and how many products and pages it has). Importing one requests that starter's content: its products, pages, menus and photographs. No information about your site is sent with either request, and nothing is requested unless you open that screen.
+
+Colorlib's terms of service: https://colorlib.com/wp/terms-of-service/ - privacy policy: https://colorlib.com/wp/privacy-policy/
+
 == Changelog ==
+
+= 0.2.0 =
+* Starter sites: import a complete store, or only its look, from Appearance > Starter sites.
+* Removing an imported starter takes out what it added and leaves anything since used or edited.
+* WP-CLI: `wp tyche starters`, `wp tyche import <slug>`, `wp tyche remove`.
 
 = 0.1.0 =
 * First release.
