@@ -2,10 +2,10 @@
  * End-to-end checks for the plugin's store features on a running store.
  *
  *   WP_URL=http://localhost:8812 node .dev/feature-test.mjs [shotsdir]
+ *
+ * Needs Playwright where Node can resolve it (npm i -D playwright).
  */
-import { pathToFileURL } from 'node:url';
-const pw = await import( pathToFileURL( '/Users/silkalns/Fresh Projects/tailwind-templates/node_modules/playwright/index.js' ).href );
-const { chromium } = pw.chromium ? pw : pw.default;
+import { chromium } from 'playwright';
 
 const base = process.env.WP_URL || 'http://localhost:8812';
 const shots = process.argv[ 2 ] || '/tmp';
