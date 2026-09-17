@@ -23,6 +23,7 @@ function tyche_companion_defaults() {
 		'hover_image'        => 1,
 		'sticky_add_to_cart' => 1,
 		'free_shipping_bar'  => 1,
+		'lean_scripts'       => 1,
 	);
 }
 
@@ -113,6 +114,7 @@ function tyche_companion_settings_page() {
 		'hover_image'        => array( __( 'Show the second photo on hover', 'tyche-companion' ), __( 'Product cards swap to the first gallery image when a pointer hovers them.', 'tyche-companion' ) ),
 		'sticky_add_to_cart' => array( __( 'Sticky add-to-cart bar', 'tyche-companion' ), __( 'On product pages, a bar with the price and button appears once the main button scrolls out of view.', 'tyche-companion' ) ),
 		'free_shipping_bar'  => array( __( 'Free shipping progress', 'tyche-companion' ), __( 'Above the cart and in the cart drawer. The amount comes from the minimum order amount on your Free shipping method.', 'tyche-companion' ) ),
+		'lean_scripts'       => array( __( 'Leaner pages', 'tyche-companion' ), __( 'Skip WooCommerce\'s jQuery scripts on pages built from blocks. My account, shortcode pages and the store notice keep them.', 'tyche-companion' ) ),
 	);
 	?>
 	<div class="wrap">

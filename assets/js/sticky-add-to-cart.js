@@ -6,7 +6,8 @@
  */
 ( function () {
 	const bar = document.querySelector( '.tyche-sticky-atc' );
-	const form = document.querySelector( 'form.cart' );
+	// The Add to Cart with Options block, or the classic add-to-cart form.
+	const form = document.querySelector( 'form.wc-block-add-to-cart-with-options, form.cart' );
 	if ( ! bar || ! form || ! ( 'IntersectionObserver' in window ) ) {
 		return;
 	}
@@ -34,7 +35,7 @@
 
 	button.addEventListener( 'click', () => {
 		if ( 'submit' === button.dataset.action ) {
-			const submit = form.querySelector( '[type="submit"], .single_add_to_cart_button' );
+			const submit = form.querySelector( '.wc-block-components-product-button__button:not([hidden]), .single_add_to_cart_button, [type="submit"]' );
 			if ( submit ) {
 				submit.click();
 				return;

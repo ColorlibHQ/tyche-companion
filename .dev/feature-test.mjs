@@ -27,10 +27,12 @@ await page.evaluate( () => window.scrollTo( 0, document.body.scrollHeight * 0.7 
 await page.waitForTimeout( 800 );
 check( 'sticky bar shown after scrolling past the form', await bar.isVisible() );
 await page.screenshot( { path: shots + '/sticky-bar.png' } );
-await Promise.all( [ page.waitForLoadState( 'load' ), bar.locator( 'button' ).click() ] );
-await page.waitForTimeout( 1000 );
-const notice = await page.locator( '.wc-block-components-notice-banner, .woocommerce-message' ).first().textContent().catch( () => '' );
-check( 'sticky bar button adds the product', /added to your cart/i.test( notice || '' ), ( notice || '' ).trim().slice( 0, 60 ) );
+const cartCount = () => page.evaluate( () => fetch( '/?rest_route=/wc/store/v1/cart', { credentials: 'same-origin' } ).then( ( r ) => r.json() ).then( ( c ) => c.items_count ) );
+const before = await cartCount();
+await bar.locator( 'button' ).click();
+await page.waitForTimeout( 3000 );
+const after = await cartCount();
+check( 'sticky bar button adds the product', after === before + 1, `items ${ before } -> ${ after }` );
 
 // Variable product: the bar offers options instead of adding.
 await page.goto( base + '/?product=merino-rollneck', { waitUntil: 'load' } );
