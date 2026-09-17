@@ -84,6 +84,13 @@ function tyche_companion_import_start( $slug, $mode = 'full' ) {
 		'started' => time(),
 	);
 
+	// Importing a second starter without removing the first would otherwise
+	// orphan everything the first one made: the record is what removal reads,
+	// so the new record inherits the old one's items. The settings snapshot is
+	// kept from the earliest import, so removing still restores the store's own
+	// home page and title rather than the previous starter's.
+	$previous = tyche_companion_imported();
+
 	update_option(
 		'tyche_companion_imported',
 		array(
@@ -92,12 +99,13 @@ function tyche_companion_import_start( $slug, $mode = 'full' ) {
 			'version'  => $starter['version'],
 			'mode'     => $state['mode'],
 			'date'     => gmdate( 'c' ),
-			'posts'    => array(),
-			'terms'    => array(),
-			'media'    => array(),
-			'menus'    => array(),
-			'parts'    => array(),
-			'settings' => tyche_companion_import_settings_snapshot(),
+			'posts'      => $previous['posts'],
+			'terms'      => $previous['terms'],
+			'media'      => $previous['media'],
+			'menus'      => $previous['menus'],
+			'parts'      => $previous['parts'],
+			'attributes' => $previous['attributes'],
+			'settings'   => $previous['slug'] ? $previous['settings'] : tyche_companion_import_settings_snapshot(),
 		),
 		false
 	);
@@ -599,6 +607,7 @@ function tyche_companion_import_step_terms( $state ) {
 			continue;
 		}
 		$id   = wc_attribute_taxonomy_id_by_name( $attribute['slug'] );
+		$new  = ! $id;
 		$args = array(
 			'name'         => $attribute['name'],
 			'slug'         => $attribute['slug'],
@@ -609,6 +618,9 @@ function tyche_companion_import_step_terms( $state ) {
 		$id = $id ? wc_update_attribute( $id, $args ) : wc_create_attribute( $args );
 		if ( is_wp_error( $id ) ) {
 			continue;
+		}
+		if ( $new ) {
+			tyche_companion_imported_add( 'attributes', $id );
 		}
 
 		$taxonomy = wc_attribute_taxonomy_name( $attribute['slug'] );
@@ -690,6 +702,13 @@ function tyche_companion_import_product( $data, $map ) {
 	$product->set_featured( ! empty( $data['featured'] ) );
 	$product->set_stock_status( isset( $data['stock_status'] ) ? $data['stock_status'] : 'instock' );
 	$product->set_menu_order( isset( $data['menu_order'] ) ? (int) $data['menu_order'] : 0 );
+
+	// How long ago the starter says this product was added. Without it every
+	// product is new today, which makes "new arrivals" meaningless and puts a
+	// New badge on the whole catalogue.
+	if ( isset( $data['days_ago'] ) ) {
+		$product->set_date_created( time() - (int) $data['days_ago'] * DAY_IN_SECONDS );
+	}
 	$product->set_reviews_allowed( ! empty( $data['reviews'] ) );
 
 	if ( ! empty( $data['sku'] ) && ! wc_get_product_id_by_sku( $data['sku'] ) ) {

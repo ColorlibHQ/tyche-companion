@@ -63,6 +63,22 @@ function tyche_companion_starter_remove() {
 		++$removed;
 	}
 
+	// An attribute the import created, now that its terms have gone. One the
+	// store still has terms or products under is left alone.
+	foreach ( $record['attributes'] as $attribute_id ) {
+		$taxonomy = wc_attribute_taxonomy_name_by_id( (int) $attribute_id );
+		if ( ! $taxonomy ) {
+			continue;
+		}
+		$terms = get_terms( array( 'taxonomy' => $taxonomy, 'hide_empty' => false, 'fields' => 'ids' ) );
+		if ( is_wp_error( $terms ) || $terms ) {
+			++$kept;
+			continue;
+		}
+		wc_delete_attribute( (int) $attribute_id );
+		++$removed;
+	}
+
 	foreach ( $record['settings'] as $key => $value ) {
 		if ( 'global_styles' === $key ) {
 			$user = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme(), false );

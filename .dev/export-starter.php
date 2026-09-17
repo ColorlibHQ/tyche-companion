@@ -313,6 +313,7 @@ function tyche_export_product( WC_Product $product ) {
 		'featured'          => $product->get_featured(),
 		'stock_status'      => $product->get_stock_status(),
 		'menu_order'        => $product->get_menu_order(),
+		'days_ago'          => (int) round( ( time() - $product->get_date_created()->getTimestamp() ) / DAY_IN_SECONDS ),
 		'image'             => $product->get_image_id() ? tyche_export_image_name( $product->get_image_id() ) : '',
 		'gallery'           => array_values( array_filter( array_map( 'tyche_export_image_name', $product->get_gallery_image_ids() ) ) ),
 		'attributes'        => array(),

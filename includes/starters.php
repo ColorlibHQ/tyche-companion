@@ -209,12 +209,13 @@ function tyche_companion_imported() {
 			'version'  => '',
 			'mode'     => '',
 			'date'     => '',
-			'posts'    => array(),
-			'terms'    => array(),
-			'media'    => array(),
-			'menus'    => array(),
-			'parts'    => array(),
-			'settings' => array(),
+			'posts'      => array(),
+			'terms'      => array(),
+			'media'      => array(),
+			'menus'      => array(),
+			'parts'      => array(),
+			'attributes' => array(),
+			'settings'   => array(),
 		)
 	);
 }
@@ -222,7 +223,7 @@ function tyche_companion_imported() {
 /**
  * Remember something the import created, so removing the starter can undo it.
  *
- * @param string    $type One of posts, terms, media, menus, parts.
+ * @param string    $type One of posts, terms, media, menus, parts, attributes.
  * @param int|array $ids  ID or IDs.
  */
 function tyche_companion_imported_add( $type, $ids ) {
