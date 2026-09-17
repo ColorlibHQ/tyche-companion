@@ -1097,6 +1097,8 @@ function tyche_companion_import_step_settings( $state ) {
 		}
 	}
 
+	tyche_companion_import_shipping( isset( $settings['shipping'] ) ? $settings['shipping'] : array() );
+
 	$front = ! empty( $settings['front_page'] ) && isset( $state['map']['page'][ $settings['front_page'] ] ) ? $state['map']['page'][ $settings['front_page'] ]['id'] : 0;
 	$posts = ! empty( $settings['posts_page'] ) && isset( $state['map']['page'][ $settings['posts_page'] ] ) ? $state['map']['page'][ $settings['posts_page'] ]['id'] : 0;
 
@@ -1109,6 +1111,50 @@ function tyche_companion_import_step_settings( $state ) {
 	}
 
 	return $state;
+}
+
+/**
+ * The starter's delivery, but only on a store that has arranged none of its own.
+ *
+ * A starter's copy promises free delivery over an amount, and the free-shipping
+ * bar reads that amount from the shipping method, so on a new store the two have
+ * to agree. On a store that already has shipping zones, the merchant's rates win
+ * and the copy is theirs to edit: nothing here overwrites what someone has set
+ * up, priced and tested.
+ *
+ * @param array $shipping Shipping from the manifest.
+ */
+function tyche_companion_import_shipping( $shipping ) {
+	if ( ! $shipping || ! class_exists( 'WC_Shipping_Zones' ) || WC_Shipping_Zones::get_zones() ) {
+		return;
+	}
+
+	$country = ! empty( $shipping['country'] ) ? $shipping['country'] : 'US';
+	$zone    = new WC_Shipping_Zone();
+	$zone->set_zone_name( WC()->countries->countries[ $country ] ?? $country );
+	$zone->add_location( $country, 'country' );
+	$zone->save();
+
+	if ( isset( $shipping['flat_rate'] ) ) {
+		$flat = $zone->add_shipping_method( 'flat_rate' );
+		update_option(
+			'woocommerce_flat_rate_' . $flat . '_settings',
+			array( 'title' => __( 'Standard delivery', 'tyche-companion' ), 'tax_status' => 'none', 'cost' => (string) $shipping['flat_rate'] )
+		);
+	}
+
+	if ( isset( $shipping['free_over'] ) ) {
+		$free = $zone->add_shipping_method( 'free_shipping' );
+		update_option(
+			'woocommerce_free_shipping_' . $free . '_settings',
+			array(
+				'title'            => __( 'Free delivery', 'tyche-companion' ),
+				'requires'         => 'min_amount',
+				'min_amount'       => (string) $shipping['free_over'],
+				'ignore_discounts' => 'no',
+			)
+		);
+	}
 }
 
 /**
