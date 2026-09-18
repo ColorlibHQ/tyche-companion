@@ -1224,7 +1224,11 @@ function tyche_companion_import_step_settings( $state ) {
 	// Importing a whole store is a request for a shop that works, so a store
 	// that was not selling anything before is taken out of it; one that was is
 	// left alone, since it may be behind that screen on purpose.
-	if ( ! empty( $state['fresh'] ) && 'yes' === get_option( 'woocommerce_coming_soon' ) ) {
+	// Set outright rather than only when it is already "yes": WooCommerce writes
+	// that option during its own setup, which on a new site can happen minutes
+	// after an import. Writing "no" now means its later default finds a value
+	// and leaves it alone, instead of hiding the store that was just imported.
+	if ( ! empty( $state['fresh'] ) ) {
 		update_option( 'woocommerce_coming_soon', 'no' );
 	}
 

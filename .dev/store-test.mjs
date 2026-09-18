@@ -138,9 +138,12 @@ if ( variable ) {
 	check( 'a combination that can be bought is reachable', '' !== chosen, chosen || 'none of the options could be added' );
 
 	const before = await cartCount();
-	check( 'the add-to-cart button is ready', await buyable() );
-	await addButton.click();
-	await page.waitForTimeout( 2500 );
+	const ready = await buyable();
+	check( 'the add-to-cart button is ready', ready );
+	if ( ready ) {
+		await addButton.click();
+		await page.waitForTimeout( 2500 );
+	}
 	const after = await cartCount();
 	check( 'a variation goes in the cart without a page reload', after === before + 1, `${ before } -> ${ after }` );
 	check( 'the cart drawer opens by itself',
