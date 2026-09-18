@@ -390,6 +390,12 @@ function tyche_companion_import_step_style( $state ) {
 
 	$user = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme(), true );
 	if ( ! empty( $user['ID'] ) ) {
+		// Core creates that post with tax_input, which wp_insert_post() applies
+		// only if the current user may assign terms. Run from WP-CLI there is no
+		// user, so the post is created with no theme attached to it, nothing
+		// ever reads it back, and the starter's colours are silently ignored.
+		wp_set_object_terms( $user['ID'], get_stylesheet(), 'wp_theme' );
+
 		// The style is a change to the site, not something the import created,
 		// so removal restores what was there rather than deleting the post.
 		$record = tyche_companion_imported();

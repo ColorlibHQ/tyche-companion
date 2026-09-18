@@ -44,10 +44,12 @@ const page = await context.newPage();
 const errors = [];
 page.on( 'pageerror', ( error ) => errors.push( error.message ) );
 
-const cartCount = () => page.evaluate( () =>
-	fetch( '/?rest_route=/wc/store/v1/cart', { credentials: 'same-origin' } )
+// The site's own root, not the domain's: on a subdirectory multisite
+// "/?rest_route=..." asks the network's main site, which has no cart.
+const cartCount = () => page.evaluate( ( site ) =>
+	fetch( site + '/?rest_route=/wc/store/v1/cart', { credentials: 'same-origin' } )
 		.then( ( r ) => r.json() )
-		.then( ( c ) => c.items_count ) );
+		.then( ( c ) => c.items_count ), base );
 
 // A simple product: the sticky bar follows the shopper past the button.
 if ( simple ) {
