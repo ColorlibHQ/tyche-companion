@@ -38,6 +38,16 @@ check( 'the store has products', products.length > 0, `${ products.length }` );
 check( 'a simple product is on sale somewhere', !! onSale, onSale ? onSale.name : 'none' );
 check( 'something is out of stock, so the badge can be seen', !! soldOut, soldOut ? soldOut.name : 'none' );
 
+// WooCommerce hides a new store behind a coming-soon screen, and with
+// "store pages only" the shop still looks fine while every product page is a
+// placeholder. Without this check the next one times out with no explanation.
+const comingSoon = await fetch( `${ base }/?rest_route=/wc/store/v1/products&per_page=1` )
+	.then( () => fetch( base + '/shop/' ) )
+	.then( ( r ) => r.text() )
+	.then( ( html ) => /Great things are on the horizon|coming soon/i.test( html ) )
+	.catch( () => false );
+check( 'the store is not behind the coming-soon screen', ! comingSoon );
+
 const browser = await chromium.launch();
 const context = await browser.newContext( { viewport: { width: 1440, height: 900 } } );
 const page = await context.newPage();

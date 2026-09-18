@@ -76,6 +76,10 @@ function tyche_companion_import_start( $slug, $mode = 'full' ) {
 
 	$steps = tyche_companion_import_steps( $mode );
 	$state = array(
+		// A store with nothing in it yet can be set up properly: given delivery,
+		// and taken out of WooCommerce's coming-soon screen. One that is already
+		// selling has made those decisions for itself.
+		'fresh'   => 0 === (int) wp_count_posts( 'product' )->publish,
 		'slug'    => $slug,
 		'mode'    => 'look' === $mode ? 'look' : 'full',
 		'step'    => $steps[0],
@@ -123,7 +127,16 @@ function tyche_companion_import_start( $slug, $mode = 'full' ) {
  * @return array
  */
 function tyche_companion_import_settings_snapshot() {
-	$keys = array( 'blogname', 'blogdescription', 'show_on_front', 'page_on_front', 'page_for_posts', 'permalink_structure' );
+	$keys = array(
+		'blogname',
+		'blogdescription',
+		'show_on_front',
+		'page_on_front',
+		'page_for_posts',
+		'permalink_structure',
+		'woocommerce_coming_soon',
+		'woocommerce_store_pages_only',
+	);
 	$out  = array();
 	foreach ( $keys as $key ) {
 		$out[ $key ] = get_option( $key );
@@ -1204,6 +1217,16 @@ function tyche_companion_import_step_settings( $state ) {
 	}
 
 	tyche_companion_import_shipping( isset( $settings['shipping'] ) ? $settings['shipping'] : array() );
+
+	// WooCommerce hides a new store behind "Great things are on the horizon"
+	// until the merchant launches it, and with store_pages_only that screen is
+	// what every product page shows while the rest of the site looks finished.
+	// Importing a whole store is a request for a shop that works, so a store
+	// that was not selling anything before is taken out of it; one that was is
+	// left alone, since it may be behind that screen on purpose.
+	if ( ! empty( $state['fresh'] ) && 'yes' === get_option( 'woocommerce_coming_soon' ) ) {
+		update_option( 'woocommerce_coming_soon', 'no' );
+	}
 
 	$front = ! empty( $settings['front_page'] ) && isset( $state['map']['page'][ $settings['front_page'] ] ) ? $state['map']['page'][ $settings['front_page'] ]['id'] : 0;
 	$posts = ! empty( $settings['posts_page'] ) && isset( $state['map']['page'][ $settings['posts_page'] ] ) ? $state['map']['page'][ $settings['posts_page'] ]['id'] : 0;

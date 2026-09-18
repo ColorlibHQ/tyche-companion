@@ -247,6 +247,8 @@ function tyche_companion_import_state() {
 	return wp_parse_args(
 		(array) get_option( 'tyche_companion_import_state', array() ),
 		array(
+			// Whether the store was selling anything before the import.
+			'fresh'   => false,
 			'slug'    => '',
 			'mode'    => 'full',
 			'step'    => '',
