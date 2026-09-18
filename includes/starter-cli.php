@@ -87,6 +87,14 @@ class Tyche_Companion_CLI {
 			++$guard;
 		} while ( empty( $state['complete'] ) && $guard < 500 );
 
+		$failures = (array) get_option( 'tyche_companion_import_failures', array() );
+		if ( $failures ) {
+			WP_CLI::warning( sprintf( '%d photographs could not be added:', count( $failures ) ) );
+			foreach ( array_slice( $failures, 0, 5 ) as $failure ) {
+				WP_CLI::log( '  ' . $failure );
+			}
+		}
+
 		$record = tyche_companion_imported();
 		WP_CLI::success(
 			sprintf(

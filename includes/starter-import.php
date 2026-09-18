@@ -72,6 +72,8 @@ function tyche_companion_import_start( $slug, $mode = 'full' ) {
 		return $manifest;
 	}
 
+	delete_option( 'tyche_companion_import_failures' );
+
 	$steps = tyche_companion_import_steps( $mode );
 	$state = array(
 		'slug'    => $slug,
@@ -489,7 +491,11 @@ function tyche_companion_import_step_images( $state ) {
 
 		$id = tyche_companion_import_sideload( $state['slug'], $file );
 		if ( is_wp_error( $id ) ) {
-			// A missing photograph is not worth failing a whole store for.
+			// A missing photograph is not worth failing a whole store for, but
+			// silence here once imported a store with no pictures at all.
+			$failures   = (array) get_option( 'tyche_companion_import_failures', array() );
+			$failures[] = $file . ': ' . $id->get_error_message();
+			update_option( 'tyche_companion_import_failures', array_slice( $failures, 0, 40 ), false );
 			continue;
 		}
 
@@ -528,6 +534,19 @@ function tyche_companion_import_sideload( $slug, $file ) {
 
 	$source = tyche_companion_starter_image_url( $slug, $file );
 
+	// A multisite network lists the file types its sites may upload, and WebP is
+	// not on the default list, so every photograph in a starter was refused with
+	// "you are not allowed to upload this file type". This allows the types a
+	// package can contain, for this sideload only.
+	$allow = function ( $mimes ) {
+		$mimes['webp'] = 'image/webp';
+		$mimes['avif'] = 'image/avif';
+		$mimes['jpg|jpeg|jpe'] = 'image/jpeg';
+		$mimes['png'] = 'image/png';
+		return $mimes;
+	};
+	add_filter( 'upload_mimes', $allow, 99 );
+
 	if ( str_starts_with( $source, 'file://' ) ) {
 		$path = substr( $source, 7 );
 		if ( ! is_readable( $path ) ) {
@@ -543,6 +562,9 @@ function tyche_companion_import_sideload( $slug, $file ) {
 	}
 
 	$id = media_handle_sideload( array( 'name' => $file, 'tmp_name' => $temp ), 0 );
+
+	remove_filter( 'upload_mimes', $allow, 99 );
+
 	if ( is_wp_error( $id ) ) {
 		if ( file_exists( $temp ) ) {
 			wp_delete_file( $temp );
