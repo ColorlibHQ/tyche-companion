@@ -523,8 +523,34 @@ function tyche_companion_import_step_images( $state ) {
 	require_once ABSPATH . 'wp-admin/includes/media.php';
 
 	$images = array_values( (array) $images );
-	$start  = (int) $state['cursor'];
-	$batch  = array_slice( $images, $start, 3 );
+
+	// "Look only" brings one page, so it brings that page's photographs and not
+	// the twenty in the rest of the store.
+	if ( 'look' === $state['mode'] ) {
+		$pages   = tyche_companion_starter_file( $state['slug'], 'pages.json' );
+		$front   = tyche_companion_import_front_slug( $state['slug'] );
+		$content = '';
+		foreach ( ( is_wp_error( $pages ) ? array() : (array) $pages ) as $page ) {
+			if ( isset( $page['slug'] ) && $page['slug'] === $front ) {
+				$content = isset( $page['content'] ) ? $page['content'] : '';
+			}
+		}
+		$parts = tyche_companion_starter_file( $state['slug'], 'parts.json' );
+		foreach ( ( is_wp_error( $parts ) ? array() : (array) $parts ) as $part ) {
+			$content .= isset( $part['content'] ) ? $part['content'] : '';
+		}
+		$images = array_values(
+			array_filter(
+				$images,
+				function ( $image ) use ( $content ) {
+					return ! empty( $image['file'] ) && str_contains( $content, $image['file'] );
+				}
+			)
+		);
+	}
+
+	$start = (int) $state['cursor'];
+	$batch = array_slice( $images, $start, 3 );
 
 	foreach ( $batch as $image ) {
 		$file = isset( $image['file'] ) ? $image['file'] : '';
@@ -951,7 +977,22 @@ function tyche_companion_import_step_pages( $state ) {
 			'comment_status' => 'closed',
 		);
 
-		if ( $existing ) {
+		// A look-only import must not take over the front page of a store that
+		// has one. The layout arrives as a draft, named so it can be found, and
+		// publishing it is the merchant's decision.
+		if ( $look_only ) {
+			$starter = tyche_companion_starter( $state['slug'] );
+			$data['post_status'] = 'draft';
+			$data['post_title']  = sprintf(
+				/* translators: 1: page title, 2: starter name. */
+				__( '%1$s (%2$s)', 'tyche-companion' ),
+				$page['title'],
+				is_wp_error( $starter ) ? $state['slug'] : $starter['name']
+			);
+			$data['post_name'] = $page['slug'] . '-' . $state['slug'];
+		}
+
+		if ( $existing && ! $look_only ) {
 			// Never overwrite a page the store already had: keep ours beside it.
 			if ( ! get_post_meta( $existing[0]->ID, '_tyche_starter', true ) ) {
 				$data['post_name'] = $page['slug'] . '-' . $state['slug'];

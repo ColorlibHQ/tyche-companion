@@ -1,6 +1,6 @@
 === Tyche Companion ===
 Contributors: colorlib
-Tags: woocommerce, starter sites, free shipping, sticky add to cart, product badges
+Tags: woocommerce, starter sites, free shipping, sticky add to cart, countdown
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
@@ -19,6 +19,7 @@ Tyche Companion adds the store features a WooCommerce block theme is not allowed
 * **Sale badges as a percentage.** "-25%" instead of "Sale". Variable products show their largest discount.
 * **"New" and "Sold out" badges** on product cards.
 * **Second photo on hover.** Product cards show the first gallery image when a pointer hovers them.
+* **Countdown block.** Counts down to a drop, a sale or the end of an offer, and says so when the moment passes. The numbers are hidden from screen readers, which are given the date instead.
 
 Every feature can be switched off under WooCommerce > Tyche Companion.
 
@@ -42,6 +43,7 @@ Colorlib's terms of service: https://colorlib.com/wp/terms-of-service/ - privacy
 
 = 0.2.0 =
 * Starter sites: import a complete store, or only its look, from Appearance > Starter sites.
+* A countdown block, for drops and offers.
 * Removing an imported starter takes out what it added and leaves anything since used or edited.
 * WP-CLI: `wp tyche starters`, `wp tyche import <slug>`, `wp tyche remove`.
 
