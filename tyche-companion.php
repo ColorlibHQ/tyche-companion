@@ -3,7 +3,7 @@
  * Plugin Name:       Tyche Companion
  * Plugin URI:        https://colorlib.com/wp/themes/tyche/
  * Description:       Store features for the Tyche theme: a free-shipping progress bar, a sticky add-to-cart bar, sale and stock badges, and a second product photo on hover. Built as blocks, so they work in any block theme.
- * Version:           0.2.0-dev.1
+ * Version:           0.2.0-dev.2
  * Requires at least: 7.0
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
@@ -18,7 +18,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'TYCHE_COMPANION_VERSION', '0.2.0-dev.1' );
+define( 'TYCHE_COMPANION_VERSION', '0.2.0-dev.2' );
 define( 'TYCHE_COMPANION_DIR', plugin_dir_path( __FILE__ ) );
 define( 'TYCHE_COMPANION_URL', plugin_dir_url( __FILE__ ) );
 

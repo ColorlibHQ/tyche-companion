@@ -111,6 +111,7 @@ function tyche_companion_import_start( $slug, $mode = 'full' ) {
 			'menus'      => $previous['menus'],
 			'parts'      => $previous['parts'],
 			'attributes' => $previous['attributes'],
+			'trashed'    => $previous['trashed'],
 			'settings'   => $previous['slug'] ? $previous['settings'] : tyche_companion_import_settings_snapshot(),
 		),
 		false
@@ -1136,7 +1137,45 @@ function tyche_companion_import_step_posts( $state ) {
 		}
 	}
 
+	tyche_companion_import_hide_default_post();
+
 	return $state;
+}
+
+/**
+ * Put WordPress's own "Hello world!" post in the trash.
+ *
+ * Every starter's journal is a grid of posts with photographs, and the first
+ * post WordPress makes has none: it sits in that grid as an empty frame with
+ * "Uncategorized" over it. Nobody wants to keep it, but it is still the
+ * store's content, so it is trashed rather than deleted and removing the
+ * starter puts it back.
+ *
+ * Only while it is untouched: post 1, never edited since WordPress made it,
+ * still in the default category and with no photograph of its own. Editing it
+ * moves post_modified, so a store that has written over it keeps it. The title
+ * and slug are not tested because both are translated: a Spanish store's first
+ * post is "¡Hola, mundo!" at /hola-mundo/.
+ */
+function tyche_companion_import_hide_default_post() {
+	$default = get_post( 1 );
+	if ( ! $default || 'post' !== $default->post_type || 'publish' !== $default->post_status ) {
+		return;
+	}
+	if ( $default->post_date !== $default->post_modified ) {
+		return;
+	}
+	if ( get_post_thumbnail_id( $default->ID ) ) {
+		return;
+	}
+	$categories = wp_get_post_categories( $default->ID );
+	if ( array( (int) get_option( 'default_category' ) ) !== array_map( 'intval', $categories ) ) {
+		return;
+	}
+
+	if ( wp_trash_post( $default->ID ) ) {
+		tyche_companion_imported_add( 'trashed', $default->ID );
+	}
 }
 
 /**

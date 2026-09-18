@@ -79,6 +79,16 @@ function tyche_companion_starter_remove() {
 		++$removed;
 	}
 
+	// Anything the import only hid comes back, unless the store has since
+	// taken it out of the trash or thrown it away for good.
+	foreach ( $record['trashed'] as $id ) {
+		$post = get_post( $id );
+		if ( $post && 'trash' === $post->post_status ) {
+			wp_untrash_post( $id );
+			wp_update_post( array( 'ID' => $id, 'post_status' => 'publish' ) );
+		}
+	}
+
 	foreach ( $record['settings'] as $key => $value ) {
 		if ( 'global_styles' === $key ) {
 			$user = WP_Theme_JSON_Resolver::get_user_data_from_wp_global_styles( wp_get_theme(), false );
