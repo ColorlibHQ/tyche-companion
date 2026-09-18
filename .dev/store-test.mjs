@@ -31,12 +31,27 @@ const api = async ( path ) => {
 const products = await api( '/products?per_page=100' );
 const variable = products.find( ( p ) => 'variable' === p.type && p.is_in_stock );
 const simple = products.find( ( p ) => 'simple' === p.type && p.is_purchasable && p.is_in_stock );
+// Out of stock counts whether it is the product or one of its sizes: a shop
+// that sells in drops has sold-out sizes long before it has a sold-out product.
+const soldOutVariation = await ( async () => {
+	for ( const product of products.filter( ( p ) => 'variable' === p.type ).slice( 0, 4 ) ) {
+		const variations = await api( `/products?type=variation&parent=${ product.id }&per_page=100` ).catch( () => [] );
+		if ( variations.some( ( v ) => false === v.is_in_stock ) ) {
+			return product.name;
+		}
+	}
+	return '';
+} )();
 const soldOut = products.find( ( p ) => ! p.is_in_stock );
 const onSale = products.find( ( p ) => p.on_sale );
 
 check( 'the store has products', products.length > 0, `${ products.length }` );
 check( 'a simple product is on sale somewhere', !! onSale, onSale ? onSale.name : 'none' );
-check( 'something is out of stock, so the badge can be seen', !! soldOut, soldOut ? soldOut.name : 'none' );
+check(
+	'something is out of stock, so a shopper meets that state',
+	!! soldOut || !! soldOutVariation,
+	soldOut ? soldOut.name : ( soldOutVariation ? soldOutVariation + ' (a size)' : 'none' )
+);
 
 // WooCommerce hides a new store behind a coming-soon screen, and with
 // "store pages only" the shop still looks fine while every product page is a
@@ -82,23 +97,48 @@ if ( variable ) {
 	const groupCount = await groups.count();
 	check( 'the product has options to choose', groupCount > 0, `${ groupCount } attributes, ${ await chips.count() } choices` );
 
-	// One choice per attribute. Clicking a chip that is already selected turns
-	// it off, so only unselected ones are clicked.
-	for ( let group = 0; group < groupCount; group++ ) {
-		const option = groups.nth( group )
-			.locator( '.wc-block-product-filter-chips__item[aria-checked="false"]:not([disabled])' )
-			.first();
-		if ( await option.count() ) {
-			await option.click();
-			await page.waitForTimeout( 400 );
+	// A sold-out size looks exactly like an available one until it is chosen,
+	// so picking the first chip can land on a combination that cannot be bought
+	// and the button never appears. Try the first attribute's options in turn,
+	// the way a shopper would, and stop at one that can actually be added.
+	const addButton = page.locator( '.tyche-product__add .wc-block-components-product-button__button, .single_add_to_cart_button, button[type="submit"]' ).first();
+	const buyable = async () => {
+		if ( ! await addButton.count() ) {
+			return false;
+		}
+		return await addButton.isVisible().catch( () => false ) && await addButton.isEnabled().catch( () => false );
+	};
+
+	const firstGroupChips = await groups.first().locator( '.wc-block-product-filter-chips__item' ).count();
+	let chosen = '';
+
+	for ( let attempt = 0; attempt < firstGroupChips; attempt++ ) {
+		// Start clean: a chip that is already on turns off when clicked again.
+		for ( const on of await page.locator( '.tyche-product__add .wc-block-product-filter-chips__item[aria-checked="true"]' ).all() ) {
+			await on.click();
+			await page.waitForTimeout( 200 );
+		}
+
+		for ( let group = 0; group < groupCount; group++ ) {
+			const chip = groups.nth( group )
+				.locator( '.wc-block-product-filter-chips__item' )
+				.nth( 0 === group ? attempt : 0 );
+			if ( await chip.count() ) {
+				await chip.click();
+				await page.waitForTimeout( 350 );
+			}
+		}
+
+		if ( await buyable() ) {
+			chosen = ( await page.locator( '.tyche-product__add .wc-block-product-filter-chips__item[aria-checked="true"]' ).allTextContents() ).join( ' + ' );
+			break;
 		}
 	}
-	const selected = await page.locator( '.tyche-product__add .wc-block-product-filter-chips__item[aria-checked="true"]' ).count();
-	check( 'a choice is made in every group', selected === groupCount, `${ selected } of ${ groupCount }` );
+
+	check( 'a combination that can be bought is reachable', '' !== chosen, chosen || 'none of the options could be added' );
 
 	const before = await cartCount();
-	const addButton = page.locator( '.tyche-product__add .wc-block-components-product-button__button, .single_add_to_cart_button, button[type="submit"]' ).first();
-	check( 'the add-to-cart button is ready', await addButton.isEnabled().catch( () => false ) );
+	check( 'the add-to-cart button is ready', await buyable() );
 	await addButton.click();
 	await page.waitForTimeout( 2500 );
 	const after = await cartCount();
