@@ -212,10 +212,39 @@ function tyche_companion_import_resolve( $content, $map ) {
 
 	$shop = tyche_companion_import_page_url( 'shop' );
 
-	// Quoted ID placeholders first: "{{imgid:x}}" has to come out as a number,
-	// not as a string, or the block editor reads the attribute as invalid.
+	// An image the store does not have -- a download that failed, or a package
+	// listing a file it does not ship -- must leave valid markup behind. An
+	// image block with "id":0 and a wp-image-0 class is one the editor offers to
+	// recover; one with no id at all is exactly what the theme's own patterns
+	// use for a picture that is not in the media library.
 	$content = preg_replace_callback(
-		'/"\{\{(imgid|pageid|postid|catid|termid):([^}"]+)\}\}"/',
+		'/"id":"\{\{imgid:([^}"]+)\}\}",?/',
+		function ( $matches ) use ( $map ) {
+			$id = isset( $map['img'][ $matches[1] ]['id'] ) ? (int) $map['img'][ $matches[1] ]['id'] : 0;
+			if ( ! $id ) {
+				return '';
+			}
+			$comma = ',' === substr( $matches[0], -1 ) ? ',' : '';
+			return '"id":' . $id . $comma;
+		},
+		$content
+	);
+
+	$content = preg_replace_callback(
+		'/ ?wp-image-\{\{imgid:([^}" ]+)\}\}/',
+		function ( $matches ) use ( $map ) {
+			$id = isset( $map['img'][ $matches[1] ]['id'] ) ? (int) $map['img'][ $matches[1] ]['id'] : 0;
+			return $id ? ' wp-image-' . $id : '';
+		},
+		$content
+	);
+
+	$content = str_replace( array( ' class=""', 'class="" ' ), '', $content );
+
+	// Quoted ID placeholders: "{{pageid:x}}" has to come out as a number, not a
+	// string, or the block editor reads the attribute as invalid.
+	$content = preg_replace_callback(
+		'/"\{\{(pageid|postid|catid|termid):([^}"]+)\}\}"/',
 		function ( $matches ) use ( $map ) {
 			return (string) tyche_companion_import_lookup_id( $matches[1], $matches[2], $map );
 		},
@@ -240,6 +269,14 @@ function tyche_companion_import_resolve( $content, $map ) {
 					return tyche_companion_import_page_url( $token );
 				case 'account':
 					return tyche_companion_import_page_url( 'myaccount' );
+				case 'date':
+					// A starter cannot carry a fixed date: a countdown to last
+					// month reads "it is live now" for ever. The package says
+					// when relative to the import -- "next saturday 10:00" --
+					// and the date is worked out here, in the store's own time
+					// zone, in the format the countdown block stores.
+					$when = strtotime( $value, current_time( 'timestamp' ) ); // phpcs:ignore WordPress.DateTime.CurrentTimeTimestamp.Requested
+					return $when ? wp_date( 'Y-m-d\\TH:i', $when ) : '';
 				case 'img':
 					return isset( $map['img'][ $value ]['url'] ) ? $map['img'][ $value ]['url'] : wc_placeholder_img_src();
 				case 'imgid':

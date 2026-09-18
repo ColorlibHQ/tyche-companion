@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * Register every block in blocks/.
  */
 function tyche_companion_register_blocks() {
-	foreach ( array( 'free-shipping-bar' ) as $name ) {
+	foreach ( array( 'free-shipping-bar', 'countdown' ) as $name ) {
 		register_block_type( TYCHE_COMPANION_DIR . 'blocks/' . $name );
 	}
 }

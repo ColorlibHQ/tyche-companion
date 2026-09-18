@@ -1,0 +1,28 @@
+{
+	"$schema": "https://schemas.wp.org/trunk/block.json",
+	"apiVersion": 3,
+	"name": "tyche-companion/countdown",
+	"version": "0.2.0-dev.1",
+	"title": "Countdown",
+	"category": "tyche-companion",
+	"icon": "clock",
+	"description": "Counts down to a date and time: a drop, a sale, the end of an offer. When the moment passes it says so instead.",
+	"keywords": [ "countdown", "drop", "launch", "sale", "timer" ],
+	"textdomain": "tyche-companion",
+	"attributes": {
+		"date": { "type": "string", "default": "" },
+		"finished": { "type": "string", "default": "" },
+		"showLabels": { "type": "boolean", "default": true }
+	},
+	"supports": {
+		"html": false,
+		"align": [ "wide", "full" ],
+		"color": { "text": true, "background": true },
+		"spacing": { "padding": true, "margin": true },
+		"typography": { "fontSize": true, "fontFamily": true }
+	},
+	"editorScript": "file:./edit.js",
+	"viewScript": "file:./view.js",
+	"style": "file:./style.css",
+	"render": "file:./render.php"
+}

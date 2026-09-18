@@ -1,0 +1,57 @@
+/**
+ * The countdown.
+ *
+ * Numbers in their own cells, on a ground taken from the block's own colours so
+ * it sits on a dark band or a light one without being told which.
+ */
+
+.wp-block-tyche-companion-countdown {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.75rem;
+	align-items: center;
+}
+
+.tyche-countdown__units {
+	display: flex;
+	gap: 0.6rem;
+}
+
+.tyche-countdown__unit {
+	display: grid;
+	justify-items: center;
+	gap: 0.15rem;
+	min-width: 4.25rem;
+	padding: 0.7rem 0.75rem;
+	border-radius: var(--wp--custom--radius--small, 4px);
+	/* Enough tint to read as a cell on any ground the block is placed on. */
+	background: color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.tyche-countdown__value {
+	font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.25rem);
+	font-weight: 700;
+	line-height: 1;
+	font-variant-numeric: tabular-nums;
+	/* The seconds change every tick: without a fixed advance the row jitters. */
+	font-feature-settings: "tnum" 1;
+}
+
+.tyche-countdown__label {
+	font-style: normal;
+	font-size: 0.7rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	opacity: 0.7;
+}
+
+.tyche-countdown__finished {
+	margin: 0;
+	font-size: 1.1rem;
+	font-weight: 600;
+}
+
+.tyche-countdown__empty {
+	margin: 0;
+	opacity: 0.7;
+}
