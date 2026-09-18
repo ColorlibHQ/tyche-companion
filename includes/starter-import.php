@@ -1243,7 +1243,8 @@ function tyche_companion_import_step_settings( $state ) {
 
 	$settings = isset( $manifest['settings'] ) ? $manifest['settings'] : array();
 
-	if ( ! empty( $settings['title'] ) && __( 'Just another WordPress site' ) === get_option( 'blogdescription' ) ) {
+	if ( ! empty( $settings['title'] )
+		&& __( 'Just another WordPress site', 'default' ) === get_option( 'blogdescription' ) ) {
 		// Only name a store that has never been named.
 		update_option( 'blogname', $settings['title'] );
 		update_option( 'blogdescription', isset( $settings['tagline'] ) ? $settings['tagline'] : '' );

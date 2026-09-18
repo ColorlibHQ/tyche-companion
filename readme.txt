@@ -8,7 +8,7 @@ Stable tag: 0.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Starter sites for the Tyche theme, plus the store features a block theme cannot include: free shipping progress, a sticky add-to-cart bar and product badges.
+Starter sites for the Tyche theme, plus free shipping progress, a sticky add-to-cart bar and product badges.
 
 == Description ==
 
