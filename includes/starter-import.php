@@ -989,6 +989,9 @@ function tyche_companion_import_step_pages( $state ) {
 			'post_name'      => $page['slug'],
 			'post_status'    => 'publish',
 			'comment_status' => 'closed',
+			// The journal's line under its title comes from here, so a coffee
+			// roaster's journal does not describe a knitwear shop's.
+			'post_excerpt'   => isset( $page['excerpt'] ) ? $page['excerpt'] : '',
 		);
 
 		// A look-only import must not take over the front page of a store that
